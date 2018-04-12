@@ -1,0 +1,110 @@
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import components.map.Map;
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import tagcloudgenerator.controller.Controller;
+import tagcloudgenerator.model.Model;
+
+public class ControllerTest {
+
+    private Controller controller;
+    private Model model;
+
+    public ControllerTest() {
+        this.model = new Model();
+        this.controller = new Controller(this.model);
+    }
+
+    /**************************************************************************
+     * getNextWord tests
+     */
+
+    @Test
+    public void getNextWordOrSeparatorTest_routine() {
+        String line = "This had better work";
+        String exp = "This";
+        int start = 0;
+
+        String word = this.controller.getNextWordOrSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordOrSeparatorTest_LeadingSeparators() {
+        String line = "  ;: This had better work";
+        String exp = "  ;: ";
+        int start = 0;
+
+        String word = this.controller.getNextWordOrSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordOrSeparatorTest_lastWord() {
+        String line = "This had better work";
+        String exp = "work";
+        int start = 16;
+
+        String word = this.controller.getNextWordOrSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordOrSeparatorTest_middleWord() {
+        String line = "This had better work please";
+        String exp = "better";
+        int start = 9;
+
+        String word = this.controller.getNextWordOrSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordOrSeparatorTest_middleSeparator() {
+        String line = "This had better work please";
+        String exp = " ";
+        int start = 8;
+
+        String word = this.controller.getNextWordOrSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    /**************************************************************************
+     * parseText Tests
+     */
+    @Test
+    public void parseTextTest_routine() {
+        SimpleReader in = new SimpleReader1L("data/tags.txt");
+
+        this.controller.parseText(in);
+
+        Map<String, Integer> tags = this.model.getTagsMap();
+        for (Map.Pair<String, Integer> pair : tags) {
+            System.out.println(pair.key() + ": " + pair.value());
+        }
+    }
+
+    /***************************************************************************
+     * sortTags Test
+     */
+
+    @Test
+    public void sortTagsTest_routine() {
+        SimpleReader in = new SimpleReader1L("data/tags.txt");
+
+        this.controller.parseText(in);
+        this.controller.sortTags();
+
+        for (String tag : this.model.getSortedTags()) {
+            System.out.println(tag);
+        }
+    }
+}

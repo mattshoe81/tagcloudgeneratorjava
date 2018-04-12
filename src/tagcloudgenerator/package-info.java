@@ -1,0 +1,35 @@
+/**
+ * This program is written using the MVC design philosophy. The main method to
+ * run the program is located in tagcloudgenerator.view.View.java
+ *
+ * As one would expect, the controller handles essentially all of the logic,
+ * while the model serves as a container for essential data and data that will
+ * flow between the view and the controller. The view serves only to construct
+ * the GUI and contains the main method.
+ *
+ * The controller package contains (essentially) all of the logic necessary to
+ * satisfy the Project Requirements. The methods pertinent to grading are
+ * labelled with a multiline comment that looks like:
+ *
+ * ************************************************************************
+ * ******************** Project Logic *************************************
+ * ************************************************************************
+ *
+ * and is terminated by a multiline comment that looks like:
+ *
+ * ************************************************************************
+ * ******************* End Project Logic **********************************
+ * ************************************************************************
+ *
+ * All of the other methods, as far as logic goes, simply serve to facilitate
+ * the MVC design.
+ *
+ * The model.Model class also contains pertinent information as to the Project
+ * Requirements. Namely its instance variables to store the tags and a single
+ * method that performs a small amount of logic to add tags to the Map.
+ */
+/**
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+package tagcloudgenerator;

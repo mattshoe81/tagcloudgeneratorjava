@@ -1,0 +1,14 @@
+/**
+ * This program is written using the MVC design philosophy. The main method to
+ * run the program is located in the view package, in the View.java class.
+ *
+ * As one would expect, the controller handles essentially all of the logic,
+ * while the model serves as a container for essential data and data that will
+ * flow between the view and the view and the controller. The view serves only
+ * to toconstruct the GUI and contains the main method.
+ */
+/**
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+package tagcloudgenerator;

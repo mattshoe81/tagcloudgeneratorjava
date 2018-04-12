@@ -1,0 +1,164 @@
+package tagcloudgenerator.controller;
+
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
+import tagcloudgenerator.model.Model;
+
+public class Controller {
+
+    private Model model;
+
+    public Controller(Model model) {
+        this.model = model;
+    }
+
+    /**
+     * Prints the hardcoded css file containing the styling for the glossary to
+     * its own file named glossary.css.
+     *
+     * @param outputFolderName
+     *            folder in which the html files are located
+     *
+     * @requires [output folder exists]
+     */
+    public static void printCSSFile(String outputFolderName) {
+        SimpleWriter out = new SimpleWriter1L(
+                outputFolderName + "/glossary.css");
+        SimpleReader in = new SimpleReader1L("data/style.css");
+        while (!in.atEOS()) {
+            out.println(in.nextLine());
+        }
+        in.close();
+        out.close();
+    }
+
+    /**
+     * Updates the status message in the GUI.
+     *
+     * @param status
+     *            message to display
+     *
+     * @requires [status is not null]
+     */
+    public void updateStatus(String status) {
+        assert status != null : "Violation of: status is not null";
+        this.model.setStatusLabel(status);
+    }
+
+    /**
+     * Returns the file path given in the file path text field.
+     *
+     * @return the contents of the file path text field.
+     */
+    public String getFilePath() {
+        return this.model.getFileLocation();
+    }
+
+    /**
+     * Returns the folder path given in the folder text field.
+     *
+     * @return the contents of the folder text field.
+     */
+    public String getFolder() {
+        return this.model.getFolderLocation();
+    }
+
+    /**
+     * Returns a new GoButtonListener instance.
+     *
+     * @return new instance of a GoButtonListener
+     */
+    public GoButtonListener getGoButtonListener() {
+        return new GoButtonListener(this.model);
+    }
+
+    /**
+     * Returns a new ResetButtonListener instance.
+     *
+     * @return new instance of a ResetButtonListener
+     */
+    public ResetButtonListener getResetButtonListener() {
+        return new ResetButtonListener();
+    }
+
+    /**
+     * Sets the contents of both the file path and folder text fields to an
+     * empty string.
+     */
+    public void resetTextFields() {
+        this.model.setFileLocationField("");
+        this.model.setFolderLocation("");
+    }
+
+    /*
+     * ************************************************************************
+     * ************************Button Listeners********************************
+     * ************************************************************************
+     */
+
+    /**
+     * This class gets the contents of the text fields and uses that information
+     * to read the terms file and construct the proper web pages.
+     *
+     * @author matts
+     *
+     */
+    public class GoButtonListener implements ActionListener {
+
+        public GoButtonListener(Model model) {
+            super();
+            this.model = model;
+        }
+
+        Model model;
+
+        @Override
+        public final void actionPerformed(ActionEvent arg0) {
+
+            this.model.setStatusLabel("Upload Failed");
+
+            String inputFileName = this.model.getFileLocation();
+            String outputFolderName = this.model.getFolderLocation();
+
+            // Get an input stream for the txt file containing glossary terms
+            SimpleReader inputFile = new SimpleReader1L(inputFileName);
+
+            this.model.setStatusLabel("Upload Successful");
+
+            // If possible, open the browser and display the glossary
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    File file = new File(outputFolderName + "/index.html");
+                    Desktop.getDesktop().open(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            inputFile.close();
+        }
+    }
+
+    /**
+     * This class resets the text fields to the empty string.
+     *
+     * @author matts
+     *
+     */
+    public class ResetButtonListener implements ActionListener {
+
+        @Override
+        public final void actionPerformed(ActionEvent arg0) {
+            Controller.this.resetTextFields();
+            Controller.this.updateStatus("Ready");
+        }
+    }
+}

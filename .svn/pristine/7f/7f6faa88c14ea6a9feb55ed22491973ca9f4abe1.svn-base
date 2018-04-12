@@ -1,0 +1,86 @@
+package tagcloudgenerator.model;
+
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+/**
+ * Program that will read words from a .txt file and create a fully formed html
+ * page displaying a tag cloud of the words from the .txt file.
+ *
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+public final class Model {
+
+    public Model() {
+        this.statusLabel = new JLabel("Ready");
+        this.fileLocationField = new JTextField(20);
+        this.folderLocationField = new JTextField(20);
+    }
+
+    // JLabel to display the status of upload
+    private JLabel statusLabel;
+    // JTextfields for the terms file location and the output folder location
+    private JTextField fileLocationField;
+    private JTextField folderLocationField;
+
+    /**
+     * Sets the display message for the status label.
+     *
+     * @param status
+     *            status to display
+     */
+    public void setStatusLabel(String status) {
+        this.statusLabel.setText(status);
+    }
+
+    /**
+     * Returns an alias to the statusLabel.
+     *
+     * @return this.statusLabel
+     */
+    public JLabel getStatusLabel() {
+        return this.statusLabel;
+    }
+
+    /**
+     * Returns the contents of the the fileLocationField.
+     *
+     * @return contents of this.fileLocationField
+     */
+    public String getFileLocation() {
+        return this.fileLocationField.getText();
+    }
+
+    /**
+     * Sets the contents of the this.fileLocationField to str
+     *
+     * @param str
+     *            updated contents of fileLocationField
+     */
+    public void setFileLocationField(String str) {
+        this.fileLocationField.setText(str);
+    }
+
+    /**
+     *
+     *
+     * @return
+     */
+    public JTextField getFileLocationField() {
+        return this.fileLocationField;
+    }
+
+    public String getFolderLocation() {
+        return this.folderLocationField.getText();
+    }
+
+    public void setFolderLocation(String str) {
+        this.folderLocationField.setText(str);
+    }
+
+    public JTextField getFolderLocationField() {
+        return this.folderLocationField;
+    }
+
+}

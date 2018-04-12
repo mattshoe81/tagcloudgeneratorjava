@@ -1,0 +1,73 @@
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import tagcloudgenerator.controller.Controller;
+import tagcloudgenerator.model.Model;
+
+public class ControllerTest {
+
+    private Controller controller;
+    private Model model;
+
+    public ControllerTest() {
+        this.model = new Model();
+        this.controller = new Controller(this.model);
+    }
+
+    @Test
+    public void getNextWordTest_routine() {
+        String line = "This had better work";
+        String exp = "This";
+        int start = 0;
+
+        String word = this.controller.getNextWordorSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordTest_LeadingSeparators() {
+        String line = "  ;: This had better work";
+        String exp = "  ;: ";
+        int start = 0;
+
+        String word = this.controller.getNextWordorSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordTest_lastWord() {
+        String line = "This had better work";
+        String exp = "work";
+        int start = 16;
+
+        String word = this.controller.getNextWordorSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordTest_middleWord() {
+        String line = "This had better work please";
+        String exp = "better";
+        int start = 9;
+
+        String word = this.controller.getNextWordorSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+    @Test
+    public void getNextWordTest_middleSeparator() {
+        String line = "This had better work please";
+        String exp = " ";
+        int start = 8;
+
+        String word = this.controller.getNextWordorSeparator(line, start);
+
+        assertEquals(exp, word);
+    }
+
+}

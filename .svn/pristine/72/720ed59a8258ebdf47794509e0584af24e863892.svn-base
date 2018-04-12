@@ -1,0 +1,895 @@
+package tagcloudgenerator.controller;
+
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.Comparator;
+
+import javax.swing.JRadioButton;
+
+import components.map.Map;
+import components.queue.Queue;
+import components.set.Set;
+import components.set.Set3;
+import components.simplereader.SimpleReader;
+import components.simplereader.SimpleReader1L;
+import components.simplewriter.SimpleWriter;
+import components.simplewriter.SimpleWriter1L;
+import components.sortingmachine.SortingMachine;
+import components.sortingmachine.SortingMachine1L;
+import tagcloudgenerator.model.Model;
+import tagcloudgenerator.view.View;
+
+/**
+ * Program that will read words from a .txt file and create a fully formed html
+ * page displaying a tag cloud of the words from the .txt file.
+ *
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+public class Controller {
+
+    /**
+     * Reference to the model.
+     */
+    private Model model;
+
+    /**
+     * Reference to the view
+     */
+    private View view;
+
+    /**
+     * Set containing the separators. Used a set for its fast searching, since
+     * that is all that will be done with it.
+     */
+    private Set<Character> separators;
+
+    /**
+     * Set containing common words to be excluded from the tags. Used a set for
+     * its fast searching, since that is all that will be done with it.
+     */
+    private Set<String> commonWords;
+
+    /**
+     * The lowest frequency of the tags to be displayed. Used for scaling.
+     */
+    private int lowestFrequency;
+
+    /**
+     * Constructor for this, which passes a reference to the Model being used by
+     * this.
+     *
+     * @param model
+     *            model object
+     */
+    public Controller(Model model, View view) {
+        this.view = view;
+        this.model = model;
+        this.lowestFrequency = Integer.MAX_VALUE;
+        this.initializeseparators();
+        this.initializeCommonWords();
+
+    }
+
+    /*
+     * ************************************************************************
+     * ******************** Project Logic *************************************
+     * ************************************************************************
+     */
+
+    /**
+     * Single point of control over the type of set used.
+     *
+     * @param type
+     * @return
+     */
+    private <T> Set<T> getSet(T type) {
+        return new Set3<T>();
+    }
+
+    /**
+     * Adds the separators to this.separators.
+     */
+    private void initializeseparators() {
+        /*
+         * Used a Set4 to take advantage of its hash table for quick searching
+         */
+        this.separators = this.getSet(' ');
+        this.separators.add('\t');
+        this.separators.add('\n');
+        this.separators.add('\r');
+        this.separators.add(',');
+        this.separators.add('-');
+        this.separators.add('.');
+        this.separators.add('!');
+        this.separators.add('?');
+        this.separators.add('[');
+        this.separators.add(']');
+        this.separators.add('\'');
+        this.separators.add(';');
+        this.separators.add(':');
+        this.separators.add('/');
+        this.separators.add('(');
+        this.separators.add(')');
+        this.separators.add(' ');
+        this.separators.add('"');
+        this.separators.add('*');
+        this.separators.add('”');
+        this.separators.add('“');
+        this.separators.add('—');
+        this.separators.add('#');
+        this.separators.add('’');
+        this.separators.add('`');
+    }
+
+    /**
+     * Adds the list of common words to this.commonWords to be excluded from the
+     * tags.
+     */
+    private void initializeCommonWords() {
+        /*
+         * Used a Set4 to take advantage of its hash table for quick searching
+         */
+        this.commonWords = this.getSet("");
+        this.commonWords.add("a");
+        this.commonWords.add("the");
+        this.commonWords.add("and");
+        this.commonWords.add("for");
+        this.commonWords.add("it");
+        this.commonWords.add("its");
+        this.commonWords.add("it's");
+        this.commonWords.add("they");
+        this.commonWords.add("them");
+        this.commonWords.add("those");
+        this.commonWords.add("this");
+        this.commonWords.add("these");
+        this.commonWords.add("that");
+        this.commonWords.add("theirs");
+        this.commonWords.add("i");
+        this.commonWords.add("not");
+        this.commonWords.add("he");
+        this.commonWords.add("she");
+        this.commonWords.add("him");
+        this.commonWords.add("her");
+        this.commonWords.add("his");
+        this.commonWords.add("hers");
+        this.commonWords.add("as");
+        this.commonWords.add("but");
+        this.commonWords.add("or");
+        this.commonWords.add("an");
+        this.commonWords.add("will");
+        this.commonWords.add("my");
+        this.commonWords.add("all");
+        this.commonWords.add("would");
+        this.commonWords.add("there");
+        this.commonWords.add("their");
+        this.commonWords.add("to");
+        this.commonWords.add("of");
+        this.commonWords.add("in");
+        this.commonWords.add("on");
+        this.commonWords.add("with");
+        this.commonWords.add("at");
+        this.commonWords.add("by");
+        this.commonWords.add("from");
+        this.commonWords.add("into");
+        this.commonWords.add("me");
+        this.commonWords.add("if");
+        this.commonWords.add("is");
+        this.commonWords.add("have");
+        this.commonWords.add("had");
+        this.commonWords.add("do");
+        this.commonWords.add("be");
+        this.commonWords.add("am");
+        this.commonWords.add("are");
+        this.commonWords.add("no");
+        this.commonWords.add("one");
+        this.commonWords.add("only");
+        this.commonWords.add("out");
+        this.commonWords.add("said");
+        this.commonWords.add("so");
+        this.commonWords.add("some");
+        this.commonWords.add("up");
+        this.commonWords.add("upon");
+        this.commonWords.add("was");
+        this.commonWords.add("very");
+        this.commonWords.add("were");
+        this.commonWords.add("what");
+        this.commonWords.add("when");
+        this.commonWords.add("which");
+        this.commonWords.add("who");
+        this.commonWords.add("you");
+        this.commonWords.add("your");
+        this.commonWords.add("about");
+        this.commonWords.add("after");
+        this.commonWords.add("any");
+        this.commonWords.add("been");
+        this.commonWords.add("before");
+        this.commonWords.add("being");
+        this.commonWords.add("come");
+        this.commonWords.add("came");
+        this.commonWords.add("did");
+        this.commonWords.add("even");
+        this.commonWords.add("ever");
+        this.commonWords.add("every");
+        this.commonWords.add("like");
+        this.commonWords.add("how");
+        this.commonWords.add("must");
+        this.commonWords.add("now");
+        this.commonWords.add("our");
+        this.commonWords.add("we");
+        this.commonWords.add("own");
+        this.commonWords.add("s");
+        this.commonWords.add("t");
+        this.commonWords.add("ll");
+        this.commonWords.add("ve");
+        this.commonWords.add("while");
+        this.commonWords.add("yet");
+        this.commonWords.add("where");
+        this.commonWords.add("thing");
+        this.commonWords.add("then");
+        this.commonWords.add("than");
+        this.commonWords.add("say");
+        this.commonWords.add("");
+        this.commonWords.add("could");
+        this.commonWords.add("can");
+        this.commonWords.add("again");
+        this.commonWords.add("day");
+        this.commonWords.add("has");
+        this.commonWords.add("made");
+        this.commonWords.add("make");
+        this.commonWords.add("man");
+        this.commonWords.add("himself");
+        this.commonWords.add("herself");
+        this.commonWords.add("having");
+        this.commonWords.add("should");
+        this.commonWords.add("other");
+        this.commonWords.add("such");
+        this.commonWords.add("though");
+        this.commonWords.add("until");
+        this.commonWords.add("too");
+        this.commonWords.add("well");
+        this.commonWords.add("without");
+        this.commonWords.add("think");
+        this.commonWords.add("always");
+        this.commonWords.add("away");
+        this.commonWords.add("does");
+        this.commonWords.add("much");
+        this.commonWords.add("oh");
+        this.commonWords.add("back");
+        this.commonWords.add("because");
+        this.commonWords.add("go");
+        this.commonWords.add("j");
+        this.commonWords.add("here");
+        this.commonWords.add("let");
+        this.commonWords.add("know");
+        this.commonWords.add("just");
+        this.commonWords.add("more");
+        this.commonWords.add("mr");
+        this.commonWords.add("mrs");
+        this.commonWords.add("o");
+        this.commonWords.add("over");
+        this.commonWords.add("see");
+        this.commonWords.add("same");
+        this.commonWords.add("saw");
+        this.commonWords.add("says");
+        this.commonWords.add("still");
+        this.commonWords.add("why");
+        this.commonWords.add("went");
+        this.commonWords.add("d");
+    }
+
+    /**
+     * Returns a string containing all of the consecutive separators or the next
+     * word after the index start.
+     *
+     * @param line
+     *            the line containing the word or separators
+     * @param start
+     *            starting position at which to search for next word or
+     *            separator
+     * @return the next word or the next consecutive separators following the
+     *         index position start in line
+     * @ensures getNextWordOrSeparator = [the next word or the next consecutive
+     *          separators following the index position start in line]
+     */
+    public String getNextWordOrSeparator(String line, int start) {
+
+        /**
+         * @test
+         */
+
+        String word = "";
+        int index = start;
+        char currentChar = line.charAt(start);
+        boolean beganAsSeparator = this.separators.contains(currentChar);
+        while (index < line.length()
+                && this.separators.contains(currentChar) == beganAsSeparator) {
+            index++;
+            if (index < line.length()) {
+                currentChar = line.charAt(index);
+            }
+        }
+        word = line.substring(start, index);
+
+        return word;
+    }
+
+    /**
+     * Reads the text {@code in}, and adds each word of {@code in} to
+     * this.model.tags.
+     *
+     * @param in
+     *            input stream containing the text to be parsed
+     * @clears in
+     * @updates this.model.tags
+     * @requires [in is open]
+     * @ensures [every word of in is fed to this.model.tags]
+     */
+    public void parseText(SimpleReader in) {
+
+        /**
+         * @test test by reading a file, then checking that the words are
+         *       entered into this.model.tags correctly
+         */
+
+        while (!in.atEOS()) {
+            String line = in.nextLine();
+            int index = 0;
+            while (index < line.length()) {
+                String word = this.getNextWordOrSeparator(line, index);
+                index += word.length();
+                word = word.toLowerCase();
+                if (this.model.removeCommonWords()) {
+                    if (!this.separators.contains(word.charAt(0))
+                            && !this.commonWords.contains(word)) {
+                        this.model.addTagToMap(word);
+                    }
+                } else {
+                    if (!this.separators.contains(word.charAt(0))) {
+                        this.model.addTagToMap(word);
+                    }
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Sorts the keys in this.model.tags by adding them to this.model.sortedTags
+     * in alphabetically sorted order. Only adds as many words to
+     * this.model.sortedTags as the user specified, and only those with the
+     * highest count
+     *
+     * @updates this.model.sortedTags
+     * @ensures [the keys in this.model.tags are enqueued to
+     *          this.model.sortedTags in alphabetically sorted order]
+     */
+    public void sortTags(Map<String, Integer> tagsMap) {
+
+        /**
+         * @test
+         */
+
+        /*
+         * Use the SortingMachine to sort the elements in the map, then add them
+         * to model.sortedTags
+         */
+        SortingMachine<String> alphabeticSorter = this
+                .getSortingMachine(new AlphabeticOrder());
+        SortingMachine<Map.Pair<String, Integer>> frequencySorter = this
+                .getSortingMachine(new FrequencyOrder());
+        /*
+         * Using an iterator seemed a little more concise than a for each having
+         * to deal with making a pair. This just adds each element in the tag
+         * map into the frequencySorter.
+         */
+        for (Map.Pair<String, Integer> pair : tagsMap) {
+            frequencySorter.add(pair);
+        }
+
+        /*
+         * Now that the tags are sorted by frequency, take the first x number
+         * that the user specified, out of the frequencySorter and add them to
+         * the alphabetic sorter.
+         */
+        frequencySorter.changeToExtractionMode();
+        int k = 0;
+        while (frequencySorter.size() > 0 && k < Integer
+                .parseInt(this.view.numberOfWordsField.getText())) {
+            alphabeticSorter.add(frequencySorter.removeFirst().key());
+            k++;
+        }
+
+        alphabeticSorter.changeToExtractionMode();
+
+        while (alphabeticSorter.size() > 0) {
+            String tag = alphabeticSorter.removeFirst();
+            int lowestFrequency = tagsMap.value(tag);
+            if (lowestFrequency < this.lowestFrequency) {
+                this.lowestFrequency = lowestFrequency;
+            }
+            this.model.addSortedTag(tag);
+        }
+    }
+
+    /**
+     * Returns a new SortingMachine instance to assert single point control over
+     * change. This is used to facilitate testing of different sorting machine
+     * implementations to improve performance.
+     *
+     * @param comparator
+     * @return new instance of SortingMachine
+     */
+    private <T> SortingMachine<T> getSortingMachine(Comparator<T> comparator) {
+        return new SortingMachine1L<T>(comparator);
+    }
+
+    /**
+     * Prints the html markup for the the header (everything necessary for
+     * well-formed markup before printing the words).
+     *
+     * @param out
+     *            the output stream to print the html markup
+     * @ensures [Well-formed html header markup is printed to out]
+     */
+    public void printHeader(SimpleWriter out) {
+        /*
+         * The header is saved in data/html-templates/header.html, which makes
+         * it a little easier to read and make changes when necessary instead of
+         * dealing with an ugly string. Just read each line in the header file
+         * and print it to out.
+         */
+        SimpleReader in = new SimpleReader1L("data/html-templates/header.html");
+        while (!in.atEOS()) {
+            String line = in.nextLine();
+            String fileName = this
+                    .extractFileName(this.view.fileLocationField.getText());
+            String title = "Top "
+                    + Integer.parseInt(this.view.numberOfWordsField.getText())
+                    + " Words in " + fileName;
+            if (line.equals("**Insert Title**")) {
+                out.println(
+                        "            <h1 class=\"title\">" + title + "</h1>");
+            } else {
+                out.println(line);
+            }
+        }
+        in.close();
+    }
+
+    /**
+     * Extracts the file name from the given file path.
+     *
+     * @param filePath
+     *            the file path for which the file name must be found
+     * @return the file name at the end of the file path
+     */
+    private String extractFileName(String filePath) {
+        int index = filePath.lastIndexOf('/');
+        String fileName = filePath;
+        if (index > -1) {
+            fileName = filePath.substring(index + 1, filePath.length());
+        }
+
+        /*
+         * Decided to make the file name upper case, just to make it stand out
+         * more than it would otherwise
+         */
+        return fileName;
+    }
+
+    /**
+     * Prints to {@code out} the html markup for every word in <@code
+     * this.model.sortedTags}, such that the font size and the hex value of the
+     * color of each word is scaled proportional to its frequency count
+     * contained in {@code this.mmodel.tags}.
+     *
+     * @param out
+     *            the output stream to print the html markup
+     * @ensures [Well-formed html header markup is printed to out in which font
+     *          size and the hex value of the color of each word is scaled
+     *          proportional to its frequency count contained in
+     *          {@code this.mmodel.tags}]
+     */
+    public void printBody(SimpleWriter out) {
+        Map<String, Integer> tagMap = this.model.getTagsMap();
+        Queue<String> sortedTags = this.model.getSortedTags();
+        while (sortedTags.length() > 0) {
+            /*
+             * Take the sorted tag out of the queue and remove the corresponding
+             * pair from the tag map
+             */
+
+            String tag = sortedTags.dequeue();
+            Map.Pair<String, Integer> pair = tagMap.remove(tag);
+
+            /*
+             * Calculate the font size proportional to tag frequency. To
+             * accomplish proper scaling for the font sizes, Scale them
+             * proportionate to the word that occurs least frequently. For
+             * example, if "and" appears 300 times, and lowest frequency is 100,
+             * then "and" would be scaled to 215. Not a perfect solution, but it
+             * works.
+             */
+            int fontSize = 15 + (pair.value() - this.lowestFrequency) * 5;
+
+            /**
+             * Additional layer of scaling according to the size of the tagsMap:
+             * it seems logical that the larger the number of tags in the map,
+             * the larger their counts will likely be (in theory). Therefore
+             * scaling down incrementally should keep the font sizes from
+             * growing too fast.
+             */
+            int numberOfTags = this.model.getTagsMap().size();
+            //            if (numberOfTags < 1000) {
+            //                fontSize *= 2;
+            //            } else
+            if (numberOfTags > 1000) {
+                fontSize /= (numberOfTags / 1000);
+            } else if (numberOfTags > 500) {
+                fontSize /= (numberOfTags / 500);
+            } else if (numberOfTags > 250) {
+                fontSize /= (numberOfTags / 250);
+            } else if (numberOfTags > 100) {
+                fontSize /= (numberOfTags / 100);
+            }
+            /*
+             * Very large files tend to create ridiculously large fonts and
+             * ridiculously small fonts for lower order tags, so it's best to
+             * cap it at a certain value. This in conjunction with the scaling
+             * done previously seems to be sufficient for most cases, barring
+             * extremely large files.
+             */
+            int maxFontSize = 300;
+            if (fontSize > maxFontSize) {
+                fontSize = maxFontSize;
+            } else if (fontSize < 15) {
+                fontSize = 15;
+            }
+            /*
+             * The default color is black (#000000) for tags that appear once.
+             * For anything else, increment the hex value proportional to the
+             * frequency of the tag. Multiplied by 50,000 to increase color
+             * distribution.
+             */
+            int color = 0x000000;
+            /*
+             * If the tag appears more than once, increment its hex color value.
+             * It just looks nice with small black tags next to the colored
+             * ones. Not checking for greater than 1 occurrence would mean that
+             * all of the tags' color get incremented, and thus none of them
+             * would be black
+             */
+            if (pair.value() > 1) {
+                color += pair.value() * 50000;
+            }
+            // Convert the hexadecimal to a properly formatted string
+            String hexColor = String.format("#%06X", (0xFFFFFF & color));
+            /*
+             * Use a <span> element to set the properties of individual words
+             * (namely the size and color) in the parent <p> element. (The
+             * leading spaces are there to make the actual html a little more
+             * readable.
+             */
+            String output = "               <span style=\"color:" + hexColor
+                    + ";font-size:" + fontSize + "px;\" title=\"count = "
+                    + pair.value() + "\">" + tag + "</span>";
+            out.println(output);
+        }
+    }
+
+    /**
+     * Prints the html markup for the the footer (everything necessary for
+     * well-formed markup after printing the words).
+     *
+     * @param out
+     *            the output stream to print the html markup
+     * @ensures [Well-formed html footer markup is printed to out]
+     */
+    public void printFooter(SimpleWriter out) {
+        /*
+         * The footer is saved in data/html-templates/footer.html, which makes
+         * it a little easier to read and make changes when necessary instead of
+         * dealing with an ugly string. Just read each line in the footer file
+         * and print it to out.
+         */
+        SimpleReader in = new SimpleReader1L("data/html-templates/footer.html");
+        while (!in.atEOS()) {
+            out.println(in.nextLine());
+        }
+        in.close();
+    }
+
+    /**
+     * Prints the .css file containing the css styling for the tag html.
+     *
+     * @ensures [a file called tagcloud.css is printed to the same folder
+     *          location as tagcloud.html]
+     */
+    public void printCSS() {
+        /*
+         * The css styling is saved in data/html-templates/sytle.css, which
+         * makes it a little easier to read and make changes when necessary
+         * instead of dealing with an ugly string. Just read each line the css
+         * file and print it to the same folder that the tagcloud.html is
+         * located in.
+         */
+        SimpleWriter out = new SimpleWriter1L(
+                this.view.folderLocationField.getText() + "/tagcloud.css");
+        SimpleReader in = new SimpleReader1L(
+                "data/html-templates/tagcloud.css");
+        while (!in.atEOS()) {
+            out.println(in.nextLine());
+        }
+        in.close();
+        out.close();
+    }
+
+    /**
+     * Calls all of the methods necessary to parse the specified text file and
+     * output a well-formed html page to the specified output folder.
+     */
+    public void createTagCloud() {
+        // Running time calculation variable
+        long startTime = System.currentTimeMillis();
+
+        String inputFileName = this.view.fileLocationField.getText();
+        String outputFolderName = this.view.folderLocationField.getText();
+
+        /*
+         * Set the status label, so if it fails here, the status label will
+         * display the correct message
+         */
+        this.view.statusLabel
+                .setText("File Path field must not be empty. Please Reset");
+        assert !inputFileName.equals("") : "File Path field must not be empty";
+
+        this.view.statusLabel
+                .setText("Folder field must not be empty. Please Reset");
+        assert !outputFolderName.equals("") : "Folder field must not be empty";
+
+        this.view.statusLabel.setText("Loading...");
+
+        /*
+         * Get an input stream for the txt file containing the text. Update the
+         * status label before though, so that if it fails, the proper message
+         * will be displayed.
+         */
+        this.view.statusLabel.setText("Invalid File Path. Please Reset");
+        SimpleReader inputFile = new SimpleReader1L(inputFileName);
+        this.view.statusLabel.setText("Loading...");
+
+        // Just get this now to make sure input is correct
+        this.getNumberOfWords();
+        /*
+         * Parse the text file by adding each word and its number of occurrences
+         * to a Map<String, Integer>
+         */
+        this.parseText(inputFile);
+        /*
+         * Sort the Queue<String> containing all of the tags in the text file.
+         */
+        this.sortTags(this.model.getTagsMap());
+
+        /*
+         * Get the output folder location and open an output stream
+         */
+        //String outputLocation = Controller.this.getFolder();
+        String outputLocation = outputFolderName + "/tagcloud.html";
+        this.view.statusLabel.setText("Invalid Folder. Please Reset");
+        SimpleWriter output = new SimpleWriter1L(outputLocation);
+        this.view.statusLabel.setText("Loading...");
+        /*
+         * Print the Header, then the Body, then the Footer
+         */
+        this.printHeader(output);
+        this.printBody(output);
+        this.printFooter(output);
+        this.printCSS();
+
+        this.view.statusLabel.setText("Upload Successful");
+
+        // If possible, open the browser and display the Tag Cloud
+        if (Desktop.isDesktopSupported()) {
+            try {
+                File file = new File(outputLocation);
+                Desktop.getDesktop().open(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /*
+         * Calculate and display the running time of the program in the console
+         * window.
+         */
+        long finishTime = System.currentTimeMillis();
+        double runTime = (finishTime - startTime) / 1000.0;
+        System.out.println("Running Time: " + runTime + " seconds");
+        /*
+         * Clear the model, in case consecutive Tag Clouds are being generated,
+         * so the next generation does not accidentally include info from this
+         * one.
+         */
+        this.model.clearModel();
+        inputFile.close();
+        output.close();
+    }
+
+    /**
+     * This is the listener for the button that the user clicks when they have
+     * filled in the text fields. This class just signals the controller that
+     * it's time to build the tag cloud.
+     *
+     */
+    public class GoButtonListener implements ActionListener {
+
+        @Override
+        public final void actionPerformed(ActionEvent arg0) {
+            Controller.this.createTagCloud();
+        }
+    }
+
+    /**
+     * Comparator for comparing strings alphabetically, rather than
+     * lexicographically.
+     *
+     */
+    public class AlphabeticOrder implements Comparator<String> {
+
+        /**
+         * @test if possible?
+         */
+
+        @Override
+        public final int compare(String arg0, String arg1) {
+            String first = arg0.toLowerCase();
+            String second = arg1.toLowerCase();
+
+            return first.compareTo(second);
+        }
+    }
+
+    /**
+     * Comparator to compare the pairs stored in this.model.tags according to
+     * their frequency count.
+     *
+     */
+    public class FrequencyOrder
+            implements Comparator<Map.Pair<String, Integer>> {
+
+        /**
+         * @test if possible?
+         */
+
+        @Override
+        public final int compare(Map.Pair<String, Integer> o1,
+                Map.Pair<String, Integer> o2) {
+            // Order biggest to smallest by using Integer.compare * -1
+            return Integer.compare(o1.value(), o2.value()) * -1;
+        }
+
+    }
+
+    /**
+     * Updates this.removeCommonWords to match selected. If
+     * removeCommonWordsButton.isSelected does not match selected, update it to
+     * match.
+     *
+     * @param selected
+     *            boolean indicating the updated value of removeCommonWords
+     */
+    public void updateRemoveCommonWords(boolean selected) {
+        this.model.setRemoveCommonWords(selected);
+        if (selected != this.view.removeCommonWordsButton.isSelected()) {
+            this.view.removeCommonWordsButton.setSelected(selected);
+        }
+    }
+
+    /**
+     * Returns a Listener for the JRadioButton state change.
+     *
+     * @return new ItemListener
+     */
+    public ItemListener getRemoveCommonWordsButtonListener() {
+        return new RemoveCommonWordsButtonListener();
+    }
+
+    /**
+     * Returns the int value of the number of words specified by the user.
+     *
+     * @return int value of the number of words specified by the user
+     */
+    public int getNumberOfWords() {
+        String originalStatus = this.view.statusLabel.getText();
+        this.view.statusLabel.setText("Invalid Number Entry");
+        int result = Integer.parseInt(this.view.numberOfWordsField.getText());
+        if (result < 0) {
+            result = 0;
+            this.view.statusLabel.setText("Invalid Input");
+            assert result > 0 : "Invalid word count";
+        } else {
+            this.view.statusLabel.setText(originalStatus);
+        }
+        return result;
+
+    }
+
+    /*
+     * ************************************************************************
+     * ******************* End Project Logic **********************************
+     * ************************************************************************
+     */
+
+    /***************************************************************************
+     * ********************** Utility Methods **********************************
+     * *************************************************************************
+     * These methods and classes are there to facilitate the MVC design.
+     */
+
+    /**
+     * Returns a new GoButtonListener instance.
+     *
+     * @return new instance of a GoButtonListener
+     */
+    public GoButtonListener getGoButtonListener() {
+        return new GoButtonListener();
+    }
+
+    /**
+     * Returns a new ResetButtonListener instance.
+     *
+     * @return new instance of a ResetButtonListener
+     */
+    public ResetButtonListener getResetButtonListener() {
+        return new ResetButtonListener();
+    }
+
+    /**
+     * Sets the contents of both the file path and folder text fields to an
+     * empty string.
+     */
+    public void resetTextFields() {
+        this.view.fileLocationField.setText("");
+        this.view.folderLocationField.setText("");
+        this.view.numberOfWordsField.setText("");
+    }
+
+    /**
+     * This class resets the text fields to the empty string.
+     *
+     * @author matts
+     *
+     */
+    public class ResetButtonListener implements ActionListener {
+
+        @Override
+        public final void actionPerformed(ActionEvent arg0) {
+            Controller.this.resetTextFields();
+            Controller.this.view.statusLabel.setText("Ready");
+            Controller.this.model.clearModel();
+            Controller.this.updateRemoveCommonWords(true);
+        }
+    }
+
+    /**
+     * Button Listener for the JRadioButton for the removeCommonWordsButton.
+     *
+     */
+    public class RemoveCommonWordsButtonListener implements ItemListener {
+
+        @Override
+        public final void itemStateChanged(ItemEvent arg0) {
+            JRadioButton item = (JRadioButton) arg0.getItem();
+            Controller.this.updateRemoveCommonWords(item.isSelected());
+
+        }
+
+    }
+
+}

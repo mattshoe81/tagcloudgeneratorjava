@@ -1,0 +1,11 @@
+<!doctype html>
+    <head>
+        <title>CSE 2231 Glossary</title>
+        <link type="text/css" rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css?family=Raleway"rel="stylesheet">
+    </head>
+    <body> 
+        <div class="content">
+            <h1 class="title">Tag Cloud</h1>
+            
+            <p>

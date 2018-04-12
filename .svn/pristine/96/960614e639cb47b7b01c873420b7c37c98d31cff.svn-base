@@ -1,0 +1,24 @@
+///////////////////////////////////
+// Paste these into the File Path text field
+//////////////////////////////////
+
+test/test-files/aesopsfables.txt
+test/test-files/callofcthulu.txt
+test/test-files/constitution.txt
+test/test-files/frankenstein.txt
+test/test-files/gettysburgaddress.txt
+test/test-files/ihaveadream.txt
+test/test-files/iliad.txt
+test/test-files/lordoftheringstrilogy.txt
+test/test-files/mobydick.txt
+test/test-files/prideandprejudice.txt
+test/test-files/shortstory.txt
+test/test-files/theirfinesthour.txt
+test/test-files/ulysses.txt
+
+
+/////////////////////////////////////////
+// Paste this into the File text field
+/////////////////////////////////////////
+
+../..

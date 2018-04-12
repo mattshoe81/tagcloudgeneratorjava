@@ -1,0 +1,104 @@
+body {
+    font-family:                   'Raleway', sans-seriff;
+    background:                    silver;
+    color:                         #455672; 
+}
+
+.content {
+    background:                    #fffff0;
+    width:                         85%;
+    margin:                        auto;
+    margin-top:                    50px;
+    margin-bottom:                 75px;
+    height:                        100%;
+    border:                        4px solid gray;
+    padding:                       50px;
+}
+
+#banner {
+    width:                         100%;
+    display:                       block;
+}
+
+.title {
+    font-weight:                   bold;
+    margin:                        auto;
+    text-align:                    center;
+    padding:                       3% 0 3% 0;
+    font-size:                     300%;
+    text-decoration:               underline;
+    font-style:                    italic;
+    color:                         #455672; 
+}
+
+#indexHeader {
+    margin-left:                   5%;  
+    margin-bottom:                 10px;
+    font-size:                     180%;
+}
+
+nav {
+    background-color:               #f08656;
+    width:                          100%;
+}
+
+nav ul {
+    margin:                         0px;
+    list-style-type:                none;
+    padding:                        5px 0px 5px 0px;
+}
+nav ul li {
+    display:                        inline;
+    padding:                        5px 10px 5px 10px;
+}
+
+nav ul li a:link, nav ul li a:visited {
+    color:                          #fffff0;
+    border-bottom:                  none;
+    font-weight:                    bold;
+    text-decoration:                none;
+}
+
+li.selected {
+    background-color:               #d36c3f;
+} 
+
+span:hover {
+	text-shadow:                   2px 2px 5px #D3D3D3;
+}
+
+.divider {
+	height:                        1.5px;
+    width:                         100%;
+    background-color:              gray;
+    margin:                        auto;
+    margin-top:                    20px;
+    margin-bottom:                 20px;
+}
+
+#headerDivider {
+	height:                        5px;
+	color:                         #455672; 
+}
+
+footer {
+    font-size:                      60%;
+    font-style:                     italic;
+    text-align:                     center;
+    padding:                        10px 0px 10px 0px;
+    clear:                          both;
+}
+
+#footerDivider {
+    height:                        1.5px;
+    width:                         100%;
+    margin-top:                    60px;
+    margin-bottom:                 0px;
+    clear:                         both;
+}
+
+.footerNotes {
+	text-align:                    center;
+	font-size:                     75%;
+	font-style:                    italic;
+}

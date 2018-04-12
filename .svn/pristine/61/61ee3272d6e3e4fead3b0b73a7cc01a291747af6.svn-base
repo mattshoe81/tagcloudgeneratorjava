@@ -1,0 +1,143 @@
+package tagcloudgenerator.model;
+
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+import components.map.Map;
+import components.map.Map1L;
+import components.queue.Queue;
+import components.queue.Queue1L;
+
+/**
+ * Program that will read words from a .txt file and create a fully formed html
+ * page displaying a tag cloud of the words from the .txt file.
+ *
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+public final class Model {
+
+    public Model() {
+        this.statusLabel = new JLabel("Ready");
+        this.fileLocationField = new JTextField(20);
+        this.folderLocationField = new JTextField(20);
+        this.tags = new Map1L<>();
+        this.sortedTags = new Queue1L<>();
+    }
+
+    private Map<String, Integer> tags;
+
+    private Queue<String> sortedTags;
+
+    /*
+     * JLabel to display the status of upload
+     */
+    private JLabel statusLabel;
+    /*
+     * JTextfield for the input file location
+     */
+    private JTextField fileLocationField;
+    /*
+     * JTextfield for the output folder location
+     */
+    private JTextField folderLocationField;
+
+    /**
+     * Sets the display message for the status label.
+     *
+     * @param status
+     *            status to display
+     */
+    public void setStatusLabel(String status) {
+        this.statusLabel.setText(status);
+    }
+
+    /**
+     * Returns an alias to the statusLabel.
+     *
+     * @return this.statusLabel
+     */
+    public JLabel getStatusLabel() {
+        return this.statusLabel;
+    }
+
+    /**
+     * Returns the contents of the the fileLocationField.
+     *
+     * @return contents of this.fileLocationField
+     */
+    public String getFileLocation() {
+        return this.fileLocationField.getText();
+    }
+
+    /**
+     * Sets the contents of the this.fileLocationField to str
+     *
+     * @param str
+     *            updated contents of fileLocationField
+     */
+    public void setFileLocationField(String str) {
+        this.fileLocationField.setText(str);
+    }
+
+    /**
+     * Returns a reference to the JTextField for the fileLocation field
+     *
+     * @return the JTextField for the fileLocation field
+     */
+    public JTextField getFileLocationField() {
+        return this.fileLocationField;
+    }
+
+    /**
+     * Returns a string with the location of the output folder.
+     *
+     * @return a string containing the location of the output folder
+     */
+    public String getFolderLocation() {
+        return this.folderLocationField.getText();
+    }
+
+    /**
+     * Sets the value of the JTextField for the folderLocation field
+     *
+     * @param new
+     *            text value of the folder location field
+     */
+    public void setFolderLocation(String str) {
+        this.folderLocationField.setText(str);
+    }
+
+    /**
+     * Returns a reference to the JTextField for the folderLocation field
+     *
+     * @return the JTextField for the folderLocation field
+     */
+    public JTextField getFolderLocationField() {
+        return this.folderLocationField;
+    }
+
+    public void addTagToMap(String tag) {
+        if (this.tags.hasKey(tag)) {
+            Map.Pair<String, Integer> pair = this.tags.remove(tag);
+            int count = pair.value();
+            count++;
+            this.tags.add(tag, count);
+        } else {
+            this.tags.add(tag, 1);
+        }
+    }
+
+    public Map<String, Integer> getTagsMap() {
+        return this.tags;
+    }
+
+    public void addSortedTag(String tag) {
+        this.sortedTags.enqueue(tag);
+    }
+
+    public Queue<String> getSortedTags() {
+        return this.sortedTags;
+    }
+
+}

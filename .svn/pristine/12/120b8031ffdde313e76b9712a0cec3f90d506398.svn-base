@@ -1,0 +1,283 @@
+package tagcloudgenerator.model;
+
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import components.map.Map;
+import components.map.Map1L;
+import components.queue.Queue;
+import components.queue.Queue1L;
+
+/**
+ * Program that will read words from a .txt file and create a fully formed html
+ * page displaying a tag cloud of the words from the .txt file.
+ *
+ * @author Matthew Shoemaker, Andrew Petrilli, Eddy Liang
+ *
+ */
+public final class Model {
+
+    /**
+     * Constructor for this.
+     */
+    public Model() {
+        this.createNewModel();
+    }
+
+    /**
+     * Initializes all of the instance variables that belong to this.
+     */
+    private void createNewModel() {
+        this.statusLabel = new JLabel("Ready");
+        this.fileLocationField = new JTextField(20);
+        this.folderLocationField = new JTextField(20);
+        this.numberOfWordsField = new JTextField(10);
+        this.tags = new Map1L<>();
+        this.sortedTags = new Queue1L<>();
+        this.removeCommonWords = true;
+        this.removeCommonWordsButton = new JRadioButton(
+                "Remove Common Words: ");
+    }
+
+    /**
+     * The collection of pairs containing tags and their corresponding
+     * frequency.
+     */
+    private Map<String, Integer> tags;
+
+    /**
+     * Collection of keys in this.tags, in sorted order.
+     */
+    private Queue<String> sortedTags;
+
+    /**
+     * JLabel to display the status of upload.
+     */
+    private JLabel statusLabel;
+    /**
+     * JTextfield for the input file location.
+     */
+    private JTextField fileLocationField;
+    /**
+     * JTextfield for the output folder location.
+     */
+    private JTextField folderLocationField;
+
+    /**
+     * JTextField for the number of words specified by the user.
+     */
+    private JTextField numberOfWordsField;
+
+    /**
+     * Radio button to indicate whether to remove common words from the tag
+     * clould
+     */
+    private JRadioButton removeCommonWordsButton;
+
+    /**
+     * State of removeCommonWordsButton
+     */
+    private boolean removeCommonWords;
+
+    /**
+     * Returns the numberOfWords JTextField object.
+     *
+     * @return the numberOfWords JTextField object
+     */
+    public JTextField getNumberOfWordsField() {
+        return this.numberOfWordsField;
+    }
+
+    /**
+     * Sets the text in the number of words field.
+     *
+     * @param text
+     *            text to display in the numberOfWordsField
+     */
+    public void setNumberOfWordsField(String text) {
+        this.numberOfWordsField.setText(text);
+    }
+
+    /**
+     * Returns the int value of the number of words specified by the user.
+     *
+     * @return int value of the number of words specified by the user
+     */
+    public int getNumberOfWords() {
+        String originalStatus = this.statusLabel.getText();
+        this.statusLabel.setText("Invalid Number Entry");
+        int result = Integer.parseInt(this.numberOfWordsField.getText());
+        if (result < 0) {
+            result = 0;
+            this.statusLabel.setText("Number rounded up to 0");
+        } else {
+            this.statusLabel.setText(originalStatus);
+        }
+        return result;
+
+    }
+
+    /**
+     * Sets the display message for the status label.
+     *
+     * @param status
+     *            status to display
+     */
+    public void setStatusLabel(String status) {
+        this.statusLabel.setText(status);
+    }
+
+    /**
+     * Returns an alias to the statusLabel.
+     *
+     * @return this.statusLabel
+     */
+    public JLabel getStatusLabel() {
+        return this.statusLabel;
+    }
+
+    /**
+     * Returns the contents of the the fileLocationField.
+     *
+     * @return contents of this.fileLocationField
+     */
+    public String getFileLocation() {
+        return this.fileLocationField.getText();
+    }
+
+    /**
+     * Sets the contents of the this.fileLocationField to str.
+     *
+     * @param str
+     *            updated contents of fileLocationField
+     */
+    public void setFileLocationField(String str) {
+        this.fileLocationField.setText(str);
+    }
+
+    /**
+     * Returns a reference to the JTextField for the fileLocation field.
+     *
+     * @return the JTextField for the fileLocation field
+     */
+    public JTextField getFileLocationField() {
+        return this.fileLocationField;
+    }
+
+    /**
+     * Returns a string with the location of the output folder.
+     *
+     * @return a string containing the location of the output folder
+     */
+    public String getFolderLocation() {
+        return this.folderLocationField.getText();
+    }
+
+    /**
+     * Sets the value of the JTextField for the folderLocation field.
+     *
+     * @param str
+     *            text value of the folder location field
+     */
+    public void setFolderLocation(String str) {
+        this.folderLocationField.setText(str);
+    }
+
+    /**
+     * Returns a reference to the JTextField for the folderLocation field.
+     *
+     * @return the JTextField for the folderLocation field
+     */
+    public JTextField getFolderLocationField() {
+        return this.folderLocationField;
+    }
+
+    /**
+     * Adds {@code tag} to {@code this.model.tags} and if {@code tag} is already
+     * in {@code tags} then it simply increments the value of that pair.
+     *
+     * @param tag
+     *            the key to be added to this.model.tags
+     */
+    public void addTagToMap(String tag) {
+        if (this.tags.hasKey(tag)) {
+            Map.Pair<String, Integer> pair = this.tags.remove(tag);
+            int count = pair.value();
+            count++;
+            this.tags.add(tag, count);
+        } else {
+            this.tags.add(tag, 1);
+        }
+    }
+
+    /**
+     * Returns a reference to this.model.tags.
+     *
+     * @return reference to this.model.tags
+     */
+    public Map<String, Integer> getTagsMap() {
+        return this.tags;
+    }
+
+    /**
+     * Adds {@code tag} to the {@code this.model.sortedTags}.
+     *
+     * @param tag
+     *            tag to be added to this.model.sortedTags
+     */
+    public void addSortedTag(String tag) {
+        this.sortedTags.enqueue(tag);
+    }
+
+    /**
+     * Returns a reference to {@code this.model.sortedTags}.
+     *
+     * @return this.model.sortedTags
+     */
+    public Queue<String> getSortedTags() {
+        return this.sortedTags;
+    }
+
+    /**
+     * Resets this.model.tags and this.sortedTags to their initial value.
+     */
+    public void clearModel() {
+        this.tags = new Map1L<>();
+        this.sortedTags = new Queue1L<>();
+    }
+
+    /**
+     * Updates this.removeCommonWords to match selected. If
+     * removeCommonWordsButton.isSelected does not match selected, update it to
+     * match.
+     *
+     * @param selected
+     *            boolean indicating the updated value of removeCommonWords
+     */
+    public void updateRemoveCommonWords(boolean selected) {
+        this.removeCommonWords = selected;
+        if (selected != this.removeCommonWordsButton.isSelected()) {
+            this.removeCommonWordsButton.setSelected(selected);
+        }
+    }
+
+    /**
+     * Returns this.removeCommonWords.
+     *
+     * @return this.removeCommonWords
+     */
+    public boolean removeCommonWords() {
+        return this.removeCommonWords;
+    }
+
+    /**
+     * Returns a reference to this.removeCommonWordsButton.
+     *
+     * @return this.removeCommonWordsButton
+     */
+    public JRadioButton getRemoveCommonWordsButton() {
+        return this.removeCommonWordsButton;
+    }
+
+}
